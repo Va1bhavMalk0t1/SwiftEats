@@ -37,7 +37,13 @@ const signinController = async (req,res) => {
 } 
 
 const signupController = async (req,res) => {
-   const {name , age , email , password} = req.body ; 
+   const allowedRoles = ['user', 'owner'];
+
+   const role = allowedRoles.includes(req.body.role) 
+    ? req.body.role 
+    : 'user';
+    
+   const {name , age , email , password } = req.body ; 
    const query1 = "select * from users where email = ? " ; 
           connection.query(query1,[email],async (err,result)=>{
             if(err){
@@ -49,8 +55,8 @@ const signupController = async (req,res) => {
                 })
             }else{
                 const hashedPassword = await bcrypt.hash(password,10) ; 
-                const query = "insert into users(name , age , password , email) values (?,?,?,?)" ; 
-                connection.query(query,[name,age,hashedPassword,email],(err,result)=>{
+                const query = "insert into users(name , age , password , email , role) values (?,?,?,?)" ; 
+                connection.query(query,[name,age,hashedPassword,email,role],(err,result)=>{
                     if(err){
                         console.log("Cannot create user !!") ; 
                         return res.status(400).json({
