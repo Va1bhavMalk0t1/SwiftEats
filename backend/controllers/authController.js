@@ -37,12 +37,8 @@ const signinController = async (req,res) => {
 } 
 
 const signupController = async (req,res) => {
-   const allowedRoles = ['user', 'owner'];
 
-   const role = allowedRoles.includes(req.body.role) 
-    ? req.body.role 
-    : 'user';
-    
+   const role = 'user';
    const {name , age , email , password } = req.body ; 
    const query1 = "select * from users where email = ? " ; 
           connection.query(query1,[email],async (err,result)=>{
