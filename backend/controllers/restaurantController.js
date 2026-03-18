@@ -49,3 +49,7 @@ const restaurantSpecificController = (req,res) => {
         })
        })
 }
+
+module.exports = {
+    restaurantListController , restaurantSpecificController
+} ; 
