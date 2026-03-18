@@ -50,6 +50,24 @@ const restaurantSpecificController = (req,res) => {
        })
 }
 
+const restaurantMenuController = (req,res)=>{
+    const id = parseInt(req.params.id) ; 
+    const query = "select * from foods where restaurant_id = ? " ; 
+    connection.query(query,[id],(err,result)=>{
+        if(err){
+            return res.status(500).json({
+                success : false , 
+                error : err.message 
+            })
+        }
+        return res.status(200).json({
+            success : true ,  
+            count : result.length , 
+            data : result 
+        }) ;
+    })
+}
+
 module.exports = {
-    restaurantListController , restaurantSpecificController
+    restaurantListController , restaurantSpecificController , restaurantMenuController
 } ; 
