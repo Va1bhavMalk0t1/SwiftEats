@@ -8,9 +8,11 @@ app.use(cors());
 
 const {restaurantRouter}  =  require('./routes/restaurantRouter') ; 
 const { authRouter } = require('./routes/authRouter') ;
+const { foodsRouter } = require('./routes/foodsRouter') ; 
 
 app.get('/apiV1/restaurants',restaurantRouter) ; 
 app.get('/apiV1',authRouter) ; 
+app.get('/apiV1/foods',foodsRouter) ; 
 
 app.listen(process.env.PORT , ()=>{
     console.log(`Server running on port ${process.env.PORT}`) ; 
