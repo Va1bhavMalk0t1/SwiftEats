@@ -52,7 +52,13 @@ const restaurantSpecificController = (req,res) => {
 
 const restaurantMenuController = (req,res)=>{
     const id = parseInt(req.params.id) ; 
-    const query = "select * from foods where restaurant_id = ? " ; 
+    if (!id) {
+    return res.status(400).json({
+        success: false,
+        message: "Invalid restaurant id"
+    });
+    }
+    const query = "select * from foods where restaurant_id = ? AND is_available = 1 " ; 
     connection.query(query,[id],(err,result)=>{
         if(err){
             return res.status(500).json({
@@ -60,6 +66,7 @@ const restaurantMenuController = (req,res)=>{
                 error : err.message 
             })
         }
+        
         return res.status(200).json({
             success : true ,  
             count : result.length , 

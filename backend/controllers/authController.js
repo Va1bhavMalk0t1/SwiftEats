@@ -20,7 +20,7 @@ const signinController = async (req,res) => {
             const isMatch = await bcrypt.compare(password,user.password) ; 
             if(isMatch){
             const token = jwt.sign({
-                id : user.id 
+                id : user.id , 
             }, process.env.JWT_SECRET , {
                 expiresIn : "1h"
             }) ; 
