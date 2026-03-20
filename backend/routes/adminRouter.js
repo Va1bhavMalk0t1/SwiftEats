@@ -4,8 +4,8 @@ const { adminMakerController , ownerMakerController } = require('../controllers/
 const { adminMiddleware} = require('../middleware/adminMiddleware'); 
 const { authMiddleware} = require('../middleware/authMiddleware'); 
 
-router('/make-admin/:id',authMiddleware,adminMiddleware,adminMakerController) ; 
-router('/make-owner/:id',authMiddleware,adminMiddleware,ownerMakerController) ; 
+router.put('/make-admin/:id',authMiddleware,adminMiddleware,adminMakerController) ; 
+router.put('/make-owner/:id',authMiddleware,adminMiddleware,ownerMakerController) ; 
 
 module.exports = {
     router 

@@ -8,11 +8,13 @@ app.use(cors());
 
 const {restaurantRouter}  =  require('./routes/restaurantRouter') ; 
 const { authRouter } = require('./routes/authRouter') ;
-const { foodsRouter } = require('./routes/foodsRouter') ; 
+const { foodsRouter } = require('./routes/foodsRouter') ;
+const { adminRouter } = require('./routes/adminRouter') ;  
 
-app.get('/apiV1/restaurants',restaurantRouter) ; 
-app.get('/apiV1',authRouter) ; 
-app.get('/apiV1/foods',foodsRouter) ; 
+app.use('/apiV1/restaurants',restaurantRouter) ; 
+app.use('/apiV1',authRouter) ; 
+app.use('/apiV1/foods',foodsRouter) ; 
+app.use('/apiV1/users',adminRouter) ;
 
 app.listen(process.env.PORT , ()=>{
     console.log(`Server running on port ${process.env.PORT}`) ; 
