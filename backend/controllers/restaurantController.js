@@ -165,7 +165,78 @@ const deleteRestaurant = (req,res) => {
     }) 
 }
 
+const updateRestaurant = (req, res) => {
+  const id = parseInt(req.params.id);
+
+  if (!id || isNaN(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid ID",
+    });
+  }
+
+  const allowedFields = [
+    "name",
+    "description",
+    "address",
+    "city",
+    "state",
+    "pincode",
+    "latitude",
+    "longitude",
+    "phone",
+    "email",
+    "opening_time",
+    "closing_time",
+    "image_url",
+    "is_open",
+  ];
+
+  let updates = [];
+  let values = [];
+
+  for (let field of allowedFields) {
+    if (req.body[field] !== undefined) {
+      updates.push(`${field} = ?`);
+      values.push(req.body[field]);
+    }
+  }
+
+  if (updates.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: "No fields to update",
+    });
+  }
+
+  const setClause = updates.join(", ");
+  const query = `UPDATE restaurants SET ${setClause} WHERE id = ?`;
+
+  values.push(id);
+
+  connection.query(query, values, (err, result) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        message: "Server Error",
+      });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Restaurant not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Restaurant updated successfully",
+    });
+  });
+};
+
 module.exports = {
     restaurantListController , restaurantSpecificController , restaurantMenuController , createRestaurant , 
-    deleteRestaurant 
+    deleteRestaurant , updateRestaurant
 } ; 
