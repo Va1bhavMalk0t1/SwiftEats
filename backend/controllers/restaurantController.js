@@ -75,6 +75,64 @@ const restaurantMenuController = (req,res)=>{
     })
 }
 
+const createRestaurant = (req,res) =>{
+    const {
+        name,
+        description,
+        address,
+        city,
+        state,
+        pincode,
+        latitude,
+        longitude,
+        phone,
+        email,
+        opening_time,
+        closing_time,
+        image_url
+    } = req.body;
+
+    const id = req.user.id ; 
+
+    if (!name || !address || !city) {
+        return res.status(400).json({
+            success: false,
+            message: "Name, address and city are required"
+        });
+    }
+
+    const query = " INSERT INTO restaurants (name, description, address, city, state, pincode, latitude, longitude, phone, email, opening_time, closing_time, owner_id, image_url)  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " ;
+
+    connection.query(query,[name,
+            description,
+            address,
+            city,
+            state,
+            pincode,
+            latitude,
+            longitude,
+            phone,
+            email,
+            opening_time,
+            closing_time,
+            id,
+            image_url] , (err,result)=>{
+                if (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message
+                });
+                }
+
+                return res.status(201).json({
+                success: true,
+                message: "Restaurant created successfully",
+                restaurantId: result.insertId
+                });
+            })
+
+}
+
 module.exports = {
-    restaurantListController , restaurantSpecificController , restaurantMenuController
+    restaurantListController , restaurantSpecificController , restaurantMenuController , createRestaurant
 } ; 
