@@ -1,30 +1,68 @@
 const connection = require('../config/db') ; 
 
-const restaurantListController = (req,res) =>{
-    const query = "SELECT * FROM restaurants ORDER BY rating DESC " ; 
-    connection.query(query,(err,result)=>{
+const restaurantListController = (req, res) => {
+  const desiredQueries = ["city", "is_open"];
 
-        if(err){
-            return res.status(500).json({
-                success : false , 
-                error : err.message , 
-                message: "Error fetching restaurants"
-            })
-        }else{
-            if (result.length === 0) {
-                return res.status(404).json({
-                success: false,
-                message: "No restaurants found"
-                });
-            }
-            return res.status(200).json({
-                success: true,
-                count: result.length,
-                data: result
-            }) ; 
-        }
-    })
-} ; 
+  let page = parseInt(req.query.page, 10) || 1;
+  if (page < 1) page = 1;
+
+  const limit = 10;
+  const offset = (page - 1) * limit;
+
+  const fields = [];
+  const values = [];
+
+  for (let item of desiredQueries) {
+    if (req.query[item] !== undefined) {
+      fields.push(`${item} = ?`);
+      values.push(req.query[item]);
+    }
+  }
+
+  let baseQuery = "FROM restaurants WHERE 1=1";
+  if (fields.length > 0) {
+    baseQuery += " AND " + fields.join(" AND ");
+  }
+
+  const countQuery = `SELECT COUNT(*) as total ${baseQuery}`;
+  const countValues = [...values]; 
+
+  connection.query(countQuery, countValues, (err, countResult) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        success: false,
+        message: "Error counting restaurants",
+      });
+    }
+
+    const total = countResult[0].total;
+    const totalPages = Math.ceil(total / limit);
+
+    const dataQuery = `SELECT * ${baseQuery} LIMIT ? OFFSET ?`;
+    const dataValues = [...values, limit, offset];
+
+    connection.query(dataQuery, dataValues, (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({
+          success: false,
+          message: "Error fetching restaurants",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        page,
+        limit,
+        total,
+        totalPages,
+        count: result.length,
+        data: result,
+      });
+    });
+  });
+};
 
 const restaurantSpecificController = (req,res) => {
        const id = parseInt(req.params.id) ; 
