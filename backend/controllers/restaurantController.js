@@ -133,6 +133,39 @@ const createRestaurant = (req,res) =>{
 
 }
 
+const deleteRestaurant = (req,res) => {
+    const id = parseInt(req.params.id) ; 
+    if(!id || isNaN(id)){
+        return res.status(400).json({
+            success : false , 
+            message : "Invalid Id"
+        })
+    }
+
+    const qry = "delete from restaurants where id = ? " ;
+    connection.query(qry,[id],(err,result)=>{
+        if(err){
+            return res.status(500).json({
+                success : false , 
+                message : "Server Error"
+            })
+        }
+
+        if(result.affectedRows === 0){
+            return res.status(404).json({
+                success : false , 
+                message : "No such restaurant"
+            })
+        }
+
+        return res.status(200).json({
+            success : true , 
+            message : "Restaurant Deleted Successfully "
+        })
+    }) 
+}
+
 module.exports = {
-    restaurantListController , restaurantSpecificController , restaurantMenuController , createRestaurant
+    restaurantListController , restaurantSpecificController , restaurantMenuController , createRestaurant , 
+    deleteRestaurant 
 } ; 
