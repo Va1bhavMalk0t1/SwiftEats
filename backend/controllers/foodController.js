@@ -85,6 +85,51 @@ const getSpecificFoods = (req,res)=>{
     })
 };
 
+const createFood = (req,res) => {
+    const { name , description, image_url, price, category, restaurant_id} = req.body ; 
+    const userId = req.user.id ; 
+    if(!name || !price || !restaurant_id){
+        return res.status(400).json({
+            success : false ,
+            message : "Name, price and restaurant_id are required"
+        })
+    }
+
+    const qry = "select id from restaurants where id = ? and owner_id = ? " ; 
+    connection.query(qry , [restaurant_id , userId] , (err,result)=>{
+        if (err) {
+            return res.status(500).json({
+                success: false,
+                message: "Server error"
+            });
+        }
+
+        if (result.length === 0) {
+            return res.status(403).json({
+                success: false,
+                message: "Not your restaurant"
+            });
+        }
+
+        const query = "insert into foods (restaurant_id, name, description, image_url, price, category) VALUES (?, ?, ?, ?, ?, ?)" ; 
+        connection.query(query,[restaurant_id, name, description, image_url, price, category],(err,result)=>{
+                if (err) {
+                    return res.status(500).json({
+                        success: false,
+                        message: err.message
+                    });
+                }
+
+                return res.status(201).json({
+                    success: true,
+                    message: "Food added successfully",
+                    foodId: result.insertId
+                });
+        })
+    })
+
+}
+
 module.exports = {
-    getSomeFoods , getCategories , getSpecificFoods
+    getSomeFoods , getCategories , getSpecificFoods , createFood 
 }
