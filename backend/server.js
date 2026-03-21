@@ -11,10 +11,11 @@ const { authRouter } = require('./routes/authRouter') ;
 const { foodsRouter } = require('./routes/foodsRouter') ;
 const { adminRouter } = require('./routes/adminRouter') ;  
 
-app.use('/apiV1/restaurants',restaurantRouter) ; 
-app.use('/apiV1',authRouter) ; 
-app.use('/apiV1/foods',foodsRouter) ; 
-app.use('/apiV1/users',adminRouter) ;
+app.use('/api/v1/restaurants',restaurantRouter) ; 
+app.use('/api/v1',authRouter) ; 
+app.use('/api/v1/foods',foodsRouter) ; 
+app.use('/api/v1/users',adminRouter) ;
+app.use('api/v1/search',searchRouter) ; 
 
 app.listen(process.env.PORT , ()=>{
     console.log(`Server running on port ${process.env.PORT}`) ; 
