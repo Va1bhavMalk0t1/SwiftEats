@@ -1,4 +1,4 @@
-const connection = require("../config/db");
+const {connection} = require("../config/db");
 
 const searchController = (req, res) => {
   try {
@@ -40,11 +40,11 @@ const searchController = (req, res) => {
           SELECT 
             foods.id,
             foods.name,
-            foods.res_id,
+            foods.restaurant_id,
             restaurants.name AS restaurant_name
           FROM foods
           JOIN restaurants 
-          ON foods.res_id = restaurants.id
+          ON foods.restaurant_id = restaurants.id
           WHERE LOWER(foods.name) LIKE ?
           LIMIT ? OFFSET ?
         `;
@@ -71,7 +71,7 @@ const searchController = (req, res) => {
               ...foods.map(f => ({
                 id: f.id,
                 name: f.name,
-                restaurant_id: f.res_id,
+                restaurant_id: f.restaurant_id,
                 restaurant_name: f.restaurant_name,
                 type: "food"
               }))

@@ -12,10 +12,10 @@ router.get('/:id/menu',authMiddleware, restaurantMenuController) ;
 
 router.put('/' , authMiddleware , isOwner , createRestaurant ) ; 
 router.delete('/:id' , authMiddleware , isOwner , deleteRestaurant) ; 
-router.update('/:id',authMiddleware,isOwner,updateRestaurant); 
+router.post('/:id',authMiddleware,isOwner,updateRestaurant); 
 
 module.exports = {
-    router 
+    restaurantRouter : router 
 } ;
 
  

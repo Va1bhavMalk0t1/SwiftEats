@@ -1,4 +1,4 @@
-const connection = require('../config/db') ; 
+const {connection} = require('../config/db') ; 
 
 const adminMakerController = (req,res) =>{
     const id = parseInt(req.params.id) ; 

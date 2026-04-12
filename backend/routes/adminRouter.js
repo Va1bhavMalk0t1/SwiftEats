@@ -8,5 +8,5 @@ router.put('/make-admin/:id',authMiddleware,adminMiddleware,adminMakerController
 router.put('/make-owner/:id',authMiddleware,adminMiddleware,ownerMakerController) ; 
 
 module.exports = {
-    router 
+    adminRouter : router 
 }

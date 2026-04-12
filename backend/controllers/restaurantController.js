@@ -1,4 +1,4 @@
-const connection = require('../config/db') ; 
+const {connection} = require('../config/db') ; 
 
 const restaurantListController = (req, res) => {
   const desiredQueries = ["city", "is_open"];

@@ -1,4 +1,4 @@
-const connection = require('../config/db') ; 
+const {connection} = require('../config/db') ; 
 
 const getSomeFoods = (req,res)=>{
     const query = "select * from foods where is_available = 1" ;

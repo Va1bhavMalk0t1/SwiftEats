@@ -10,7 +10,6 @@ router.get('/home/categories',authMiddleware,getCategories) ;
 router.get('/home/categories/:category',authMiddleware,getSpecificFoods) ;
 router.post('/',authMiddleware,isOwner,createFood) ;  
 
-
 module.exports = {
-    router 
+    foodsRouter : router 
 }
