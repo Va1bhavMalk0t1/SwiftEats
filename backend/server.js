@@ -11,6 +11,8 @@ const  {authRouter}  = require('./routes/authRouter') ;
 const  {foodsRouter}  = require('./routes/foodsRouter') ;
 const {adminRouter}  = require('./routes/adminRouter') ;  
 const {searchRouter} = require('./routes/searchRouter') ; 
+const { cartRouter } = require('./routes/cartRoutes');
+const { orderRouter } = require('./routes/orderRoutes');
 
 // console.log(restaurantRouter) ; 
 // console.log(autRouter) ; 
@@ -23,6 +25,8 @@ app.use('/api/v1', authRouter) ;
 app.use('/api/v1/foods',foodsRouter) ; 
 app.use('/api/v1/users',adminRouter) ;
 app.use('/api/v1/search',searchRouter) ; 
+app.use('/api/v1/cart', cartRouter);
+app.use('/api/v1/orders', orderRouter);
 
 app.listen(process.env.PORT , ()=>{
     console.log(`Server running on port ${process.env.PORT}`) ; 
