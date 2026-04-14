@@ -1,10 +1,26 @@
 const cartService = require('../services/cartService')
 const { connection } = require('../config/db')
 
+// ─── DB Helpers ───────────────────────────────────────────────────────────────
+// TODO: Move runQuery, beginTransaction, commit, rollback to utils/db.js and import from there
 const runQuery = (sql, values = []) =>
   new Promise((resolve, reject) =>
     connection.query(sql, values, (err, results) => (err ? reject(err) : resolve(results)))
   )
+
+const beginTransaction = () =>
+  new Promise((resolve, reject) =>
+    connection.beginTransaction(err => (err ? reject(err) : resolve()))
+  )
+
+const commit = () =>
+  new Promise((resolve, reject) =>
+    connection.commit(err => (err ? reject(err) : resolve()))
+  )
+
+const rollback = () =>
+  new Promise((resolve) => connection.rollback(() => resolve()))
+
 
 // ➤ ADD TO CART  POST /cart/add
 // body: { foodId, name, price, quantity }
@@ -13,8 +29,17 @@ exports.addToCart = async (req, res) => {
     const userId = req.user.id
     const { foodId, name, price, quantity = 1 } = req.body
 
-    if (!foodId || !name || !price) {
+    if (!foodId || !name || price == null) {
       return res.status(400).json({ success: false, message: 'foodId, name and price are required' })
+    }
+
+    // Fix: Validate price is a positive number
+    if (typeof price !== 'number' || price <= 0) {
+      return res.status(400).json({ success: false, message: 'price must be a positive number' })
+    }
+
+    if (quantity < 1 || !Number.isInteger(quantity)) {
+      return res.status(400).json({ success: false, message: 'quantity must be a positive integer' })
     }
 
     const result = await cartService.addToCart(userId, { foodId, name, price, quantity })
@@ -23,6 +48,7 @@ exports.addToCart = async (req, res) => {
     return res.status(500).json({ success: false, message: err.message })
   }
 }
+
 
 // ➤ GET CART  GET /cart
 exports.getCart = async (req, res) => {
@@ -46,6 +72,7 @@ exports.getCart = async (req, res) => {
   }
 }
 
+
 // ➤ REMOVE ITEM  DELETE /cart/remove/:foodId
 exports.removeItem = async (req, res) => {
   try {
@@ -60,25 +87,36 @@ exports.removeItem = async (req, res) => {
     if (!cart.length) return res.status(404).json({ success: false, message: 'Cart not found' })
 
     const cartId = cart[0].id
-    const deleted = await runQuery(
-      'DELETE FROM cart_items WHERE cart_id = ? AND food_id = ?',
-      [cartId, foodId]
-    )
 
-    if (deleted.affectedRows === 0) {
-      return res.status(404).json({ success: false, message: 'Item not in cart' })
+    // Fix: Wrap delete + recalculate in a transaction to prevent race conditions
+    await beginTransaction()
+    try {
+      const deleted = await runQuery(
+        'DELETE FROM cart_items WHERE cart_id = ? AND food_id = ?',
+        [cartId, foodId]
+      )
+
+      if (deleted.affectedRows === 0) {
+        await rollback()
+        return res.status(404).json({ success: false, message: 'Item not in cart' })
+      }
+
+      const remaining = await runQuery('SELECT price, quantity FROM cart_items WHERE cart_id = ?', [cartId])
+      const total = remaining.reduce((sum, i) => sum + i.price * i.quantity, 0)
+      await runQuery('UPDATE cart SET total_price = ? WHERE id = ?', [total, cartId])
+
+      await commit()
+    } catch (innerErr) {
+      await rollback()
+      throw innerErr
     }
-
-    // Recalc total
-    const remaining = await runQuery('SELECT price, quantity FROM cart_items WHERE cart_id = ?', [cartId])
-    const total = remaining.reduce((sum, i) => sum + i.price * i.quantity, 0)
-    await runQuery('UPDATE cart SET total_price = ? WHERE id = ?', [total, cartId])
 
     return res.status(200).json({ success: true, message: 'Item removed from cart' })
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message })
   }
 }
+
 
 // ➤ UPDATE QUANTITY  PUT /cart/update
 // body: { foodId, quantity }
@@ -96,22 +134,31 @@ exports.updateQuantity = async (req, res) => {
 
     const cartId = cart[0].id
 
-    if (quantity === 0) {
-      await runQuery('DELETE FROM cart_items WHERE cart_id = ? AND food_id = ?', [cartId, foodId])
-    } else {
-      const updated = await runQuery(
-        'UPDATE cart_items SET quantity = ? WHERE cart_id = ? AND food_id = ?',
-        [quantity, cartId, foodId]
-      )
-      if (updated.affectedRows === 0) {
-        return res.status(404).json({ success: false, message: 'Item not in cart' })
+    // Fix: Wrap update + recalculate in a transaction to prevent race conditions
+    await beginTransaction()
+    try {
+      if (quantity === 0) {
+        await runQuery('DELETE FROM cart_items WHERE cart_id = ? AND food_id = ?', [cartId, foodId])
+      } else {
+        const updated = await runQuery(
+          'UPDATE cart_items SET quantity = ? WHERE cart_id = ? AND food_id = ?',
+          [quantity, cartId, foodId]
+        )
+        if (updated.affectedRows === 0) {
+          await rollback()
+          return res.status(404).json({ success: false, message: 'Item not in cart' })
+        }
       }
-    }
 
-    // Recalc total
-    const remaining = await runQuery('SELECT price, quantity FROM cart_items WHERE cart_id = ?', [cartId])
-    const total = remaining.reduce((sum, i) => sum + i.price * i.quantity, 0)
-    await runQuery('UPDATE cart SET total_price = ? WHERE id = ?', [total, cartId])
+      const remaining = await runQuery('SELECT price, quantity FROM cart_items WHERE cart_id = ?', [cartId])
+      const total = remaining.reduce((sum, i) => sum + i.price * i.quantity, 0)
+      await runQuery('UPDATE cart SET total_price = ? WHERE id = ?', [total, cartId])
+
+      await commit()
+    } catch (innerErr) {
+      await rollback()
+      throw innerErr
+    }
 
     return res.status(200).json({ success: true, message: 'Quantity updated' })
   } catch (err) {

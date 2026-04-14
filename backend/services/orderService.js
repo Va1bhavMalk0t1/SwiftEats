@@ -83,7 +83,14 @@ exports.getAllOrders = async () => {
 
 // ─── UPDATE ORDER STATUS (admin) ─────────────────────────────────────────────
 exports.updateOrderStatus = async (orderId, status) => {
-  const VALID = ['pending', 'confirmed', 'preparing', 'on_the_way', 'delivered', 'cancelled']
+  const VALID = [
+  'Pending',
+  'Confirmed',
+  'Preparing',
+  'Out for Delivery',
+  'Delivered',
+  'Cancelled'
+];
   if (!VALID.includes(status)) throw new Error(`Invalid status. Must be one of: ${VALID.join(', ')}`)
   const result = await runQuery("UPDATE orders SET status = ? WHERE id = ?", [status, orderId])
   if (result.affectedRows === 0) throw new Error("Order not found")
