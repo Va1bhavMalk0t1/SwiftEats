@@ -53,7 +53,7 @@ export default function Navbar() {
           letterSpacing: '-0.5px',
         }}
       >
-        QuickBite
+        SwiftEats
       </Link>
 
       {/* Desktop Links */}

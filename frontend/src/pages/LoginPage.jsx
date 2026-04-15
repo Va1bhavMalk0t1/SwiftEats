@@ -56,7 +56,7 @@ export default function LoginPage() {
             textAlign: 'center',
           }}
         >
-          QuickBite
+          SwiftEats
         </div>
 
         <h2

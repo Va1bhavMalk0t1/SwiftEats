@@ -58,7 +58,7 @@ export default function SignupPage() {
             textAlign: 'center',
           }}
         >
-          QuickBite
+          SwiftEats
         </div>
 
         <h2

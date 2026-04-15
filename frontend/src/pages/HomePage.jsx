@@ -192,7 +192,7 @@ export default function HomePage() {
               marginBottom: 12,
             }}
           >
-            Why <span style={{ color: '#ff5c00' }}>QuickBite?</span>
+            Why <span style={{ color: '#ff5c00' }}>SwiftEats?</span>
           </h2>
           <p style={{ color: '#888', fontSize: 15 }}>Everything you need for a great meal, every time.</p>
         </div>
