@@ -1,6 +1,6 @@
-# 🍔 QuickBite — Food Delivery Web App
+# 🍔 SwiftEats — Food Delivery Web App
 
-QuickBite is a full-stack food delivery web application inspired by platforms like Swiggy and Zomato. It allows users to explore restaurants, browse food items, and manage orders with a role-based system (User, Owner, Admin).
+SwiftEats is a full-stack food delivery web application inspired by platforms like Swiggy and Zomato. It allows users to explore restaurants, browse food items, and manage orders with a role-based system (User, Owner, Admin).
 
 ---
 
