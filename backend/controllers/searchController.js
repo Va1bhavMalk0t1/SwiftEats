@@ -39,6 +39,7 @@ const searchController = (req, res) => {
         const foodQuery = `
           SELECT 
             foods.id,
+            foods.price,   
             foods.name,
             foods.restaurant_id,
             restaurants.name AS restaurant_name
@@ -71,6 +72,7 @@ const searchController = (req, res) => {
               ...foods.map(f => ({
                 id: f.id,
                 name: f.name,
+                price: f.price, 
                 restaurant_id: f.restaurant_id,
                 restaurant_name: f.restaurant_name,
                 type: "food"
